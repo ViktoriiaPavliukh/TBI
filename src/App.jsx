@@ -1,43 +1,52 @@
-
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import DataLoader from "./DataLoader";
-import MapChart from "./MapChart"; // ваш компонент карти
+import regionData from "./helpers/geo";
+import MapChart from "./MapChart";
 
-const Dashboard = () => {
-    const [data, setData] = useState(null);
+function App() {
+    const [sentimentData, setSentimentData] = useState([]);
     const [error, setError] = useState(null);
-    const [mode, setMode] = useState("overall");
+    const combinedData = useMemo(() => {
+        return sentimentData.map((item) => {
+            const regionInfo = regionData.find(
+                (r) =>
+                    r.Country.trim().toLowerCase() ===
+                        item.country.trim().toLowerCase() &&
+                    r.Region.trim().toLowerCase() ===
+                        item.region.trim().toLowerCase()
+            );
 
-    if (error) return <div className="text-red-600 p-4">{error}</div>;
-
-    if (!data)
-        return (
-            <DataLoader
-                onDataLoaded={(loadedData) => setData(loadedData)}
-                onError={(msg) => setError(msg)}
-            />
-        );
+            return {
+                ...item,
+                latitude: regionInfo?.Latitude ?? null,
+                longitude: regionInfo?.Longitude ?? null,
+            };
+        });
+    }, [sentimentData]);
 
     return (
-        <div>
-            <h1 className="text-2xl font-bold mb-4">
-                Sentiment Heatmap Dashboard
-            </h1>
+        <div className="container">
+            <DataLoader
+                csvUrl="/data/geo_sentiments.csv"
+                onDataLoaded={setSentimentData}
+                onError={setError}
+            />
 
-            <select
-                value={mode}
-                onChange={(e) => setMode(e.target.value)}
-                className="mb-4 p-2 border rounded"
-            >
-                <option value="overall">Overall</option>
-                <option value="positive">Positive</option>
-                <option value="neutral">Neutral</option>
-                <option value="negative">Negative</option>
-            </select>
+            {error && <p style={{ color: "red" }}>{error}</p>}
 
-            <MapChart data={data} mode={mode} />
+            {sentimentData.length === 0 ? (
+                <p className="text-center text-gray-600 mt-8">
+                    Loading map data...
+                </p>
+            ) : (
+                
+                <MapChart
+                    data={combinedData.filter((d) => d.latitude && d.longitude)}
+                    mode="overall"
+                />
+            )}
         </div>
     );
-};
+}
 
-export default Dashboard;
+export default App;

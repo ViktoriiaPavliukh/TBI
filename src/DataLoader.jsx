@@ -12,56 +12,28 @@ const DataLoader = ({ onDataLoaded, onError }) => {
                 if (results.errors.length) {
                     onError("Error parsing CSV data");
                 } else {
-                   
-                  const transformed = results.data
-                      .map((item) => {
-                          const isoCode =
-                              countryNameToCode[item.Country?.trim()];
-                          if (!isoCode) return null;
+                    const transformed = results.data
+                        .map((item) => {
+                            const isoCode =
+                                countryNameToCode[item.Country?.trim()];
+                            if (!isoCode) return null;
 
-                          const random = item.RandomValue;
-                          const positive = random === 2 ? 1 : 0;
-                          const neutral = random === 1 ? 1 : 0;
-                          const negative = random === 0 ? 1 : 0;
+                            const random = item.RandomValue;
+                            const positive = random === 2 ? 1 : 0;
+                            const neutral = random === 1 ? 1 : 0;
+                            const negative = random === 0 ? 1 : 0;
 
-                          return {
-                              id: isoCode,
-                              country: item.Country,
-                              region: item.Region,
-                              positive,
-                              neutral,
-                              negative,
-                          };
-                      })
-                      .filter(Boolean);
-                  // const transformed = results.data
-                  //     .map((item) => {
-                  //         const isoCode =
-                  //             countryNameToCode[item.Country?.trim()];
-                  //         if (!isoCode) return null;
-
-                  //         const random = item.RandomValue;
-                  //         const positive = random === 2 ? 1 : 0;
-                  //         const neutral = random === 1 ? 1 : 0;
-                  //         const negative = random === 0 ? 1 : 0;
-
-                  //         const regionId = `${isoCode}_${item.Region?.trim().replace(
-                  //             /\s+/g,
-                  //             "_"
-                  //         )}`;
-
-                  //         return {
-                  //             id: regionId,
-                  //             country: item.Country,
-                  //             region: item.Region,
-                  //             positive,
-                  //             neutral,
-                  //             negative,
-                  //         };
-                  //     })
-                  //     .filter(Boolean);
-
-                
+                            return {
+                                id: isoCode,
+                                country: item.Country,
+                                region: item.Region,
+                                positive,
+                                neutral,
+                                negative,
+                            };
+                        })
+                        .filter(Boolean);
+                    console.log(transformed);
                     onDataLoaded(transformed);
                 }
             },
@@ -71,7 +43,9 @@ const DataLoader = ({ onDataLoaded, onError }) => {
         });
     }, [onDataLoaded, onError]);
 
-    return <div className="p-4 text-gray-600">Loading data...</div>;
+    return (
+        <div className="p-4 text-gray-600 text-center font-light text-2xl"> Sentiment Heatmap Dashboard</div>
+    );
 };
 
 export default DataLoader;
